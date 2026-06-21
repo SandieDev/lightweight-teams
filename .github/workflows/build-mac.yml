@@ -7,8 +7,6 @@ on:
 
 jobs:
   build-macos:
-    permissions:
-      contents: write
     runs-on: macos-latest
     steps:
       - name: Checkout repository
@@ -20,7 +18,13 @@ jobs:
       - name: Install Tauri CLI
         run: cargo install tauri-cli --version "^2.0.0"
 
-      - name: Build Tauri App
-        uses: tauri-apps/tauri-action@v0
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      - name: Build Tauri Binary Natively
+        run: cargo tauri build
+
+      # Collects the standalone .app folder and packages it as a zip
+      - name: Upload macOS .app Output Asset
+        uses: actions/upload-artifact@v4
+        with:
+          name: macos-app-bundle
+          path: src-tauri/target/release/bundle/macos/*.app
+          include-hidden-files: true
