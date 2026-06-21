@@ -14,17 +14,21 @@ jobs:
 
       - name: Install Rust stable
         uses: dtolnay/rust-toolchain@stable
+        with:
+          # Explicitly add the Intel Mac compilation engine target
+          targets: x86_64-apple-darwin
 
       - name: Install Tauri CLI
         run: cargo install tauri-cli --version "^2.0.0"
 
-      - name: Build Tauri Binary Natively
-        run: cargo tauri build
+      # Force Tauri to bundle using the Intel architecture target layout
+      - name: Build Tauri Binary Natively (Intel Mac)
+        run: cargo tauri build --target x86_64-apple-darwin
 
-      # Collects the standalone .app folder and packages it as a zip
+      # Collects the standalone .app folder compiled for Intel CPUs
       - name: Upload macOS .app Output Asset
         uses: actions/upload-artifact@v4
         with:
-          name: macos-app-bundle
-          path: src-tauri/target/release/bundle/macos/*.app
+          name: intel-mac-app-bundle
+          path: src-tauri/target/x86_64-apple-darwin/release/bundle/macos/*.app
           include-hidden-files: true
